@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sanskrit Saathi — Chatbot</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#202235;background:#f4f2ed}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+    .app{width:min(760px,100%);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 18px 60px #302b2418}
+    header{padding:26px 30px;background:linear-gradient(120deg,#283d32,#52745a);color:white}
+    header h1{margin:0;font-size:clamp(1.5rem,4vw,2.2rem)}header p{margin:8px 0 0;color:#e0ebdf}
+    .chat{height:390px;overflow:auto;padding:24px;background:#fbfaf7;display:flex;flex-direction:column;gap:14px}
+    .msg{max-width:85%;padding:13px 16px;border-radius:16px;line-height:1.5;white-space:pre-wrap}
+    .bot{align-self:flex-start;background:#e8eee7;border-bottom-left-radius:4px}.user{align-self:flex-end;background:#283d32;color:white;border-bottom-right-radius:4px}
+    form{display:flex;gap:10px;padding:18px;border-top:1px solid #eee}
+    input{flex:1;min-width:0;border:1px solid #d5d8d1;border-radius:12px;padding:14px;font:inherit}
+    button{border:0;border-radius:12px;background:#c57b36;color:white;font-weight:700;padding:0 22px;cursor:pointer}
+    button:hover{filter:brightness(.94)}.examples{padding:0 18px 20px;display:flex;gap:8px;flex-wrap:wrap}
+    .examples button{background:#f0e6d9;color:#4c3a2a;padding:8px 12px;font-weight:500}
+    footer{text-align:center;padding:0 18px 20px;color:#777;font-size:.85rem}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header><h1>संस्कृत साथी · Sanskrit Saathi</h1><p>A simple Sanskrit phrase chatbot · Python + Flask</p></header>
+  <section class="chat" id="chat" aria-live="polite">
+    <div class="msg bot">नमस्ते! Welcome. Ask me a simple greeting or type “help”.</div>
+  </section>
+  <form id="form"><input id="message" autocomplete="off" placeholder="Type a message…" aria-label="Message" required><button>Send</button></form>
+  <div class="examples">
+    <button type="button" data-msg="namaste">Namaste</button><button type="button" data-msg="how are you">How are you?</button><button type="button" data-msg="good morning">Good morning</button><button type="button" data-msg="thanks">Thanks</button><button type="button" data-msg="help">Help</button>
+  </div>
+  <footer>Educational demo · Phrase-based replies, not an AI translation service</footer>
+</main>
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('message');
+function bubble(text,who){const el=document.createElement('div');el.className='msg '+who;el.textContent=text;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;}
+async function send(text){const message=(text??input.value).trim();if(!message)return;bubble(message,'user');input.value='';try{const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})});const data=await res.json();bubble(data.reply||'Sorry, something went wrong.','bot')}catch(e){bubble('Could not connect to the server. Please try again.','bot')}}
+document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();send()});
+document.querySelectorAll('[data-msg]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.msg)));
+</script>
+</body>
+</html>
